@@ -1,0 +1,20 @@
+{
+    "name": "sdkbar-ok",
+    "version": "0.0.1",
+    "description": "OK SDK plugin for cocos2d-x",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/DrMoriarty/sdkbar-ok"
+    },
+    "keywords": [
+        "cocos2d-x",
+        "plugin",
+        "ok",
+        "odnoklassniki",
+        "sdkbox",
+        "sdkbar",
+        "ecosystem:cocos2d-x"
+    ],
+    "author": "DrMoriarty",
+    "license": "MIT License"
+}

@@ -1,0 +1,70 @@
+
+sdkbox.copy_files(['app', 'odnoklassniki-android-sdk'], PLUGIN_PATH, ANDROID_STUDIO_PROJECT_DIR)
+
+sdkbox.copy_files(['Classes/OkSdk.cpp', 'Classes/OkSdk.h', 'Classes/OkSdk.hpp', 'Classes/OkSdk.mm'], PLUGIN_PATH, COCOS_CLASSES_DIR)
+
+sdkbox.android_add_xml_item({
+  'path': 'application',
+  'tag': 'activity',
+  'key': 'ru.ok.android.sdk.OkAuthActivity',
+  'xml': '''<activity android:configChanges="orientation" android:launchMode="singleTop" android:name="ru.ok.android.sdk.OkAuthActivity">
+  <intent-filter>
+    <action android:name="android.intent.action.VIEW" />
+    <category android:name="android.intent.category.DEFAULT" />
+    <category android:name="android.intent.category.BROWSABLE" />
+    <data android:host="ok200522240" android:scheme="okauth" />
+  </intent-filter>
+</activity>'''
+})
+
+sdkbox.android_add_xml_item({
+  'path': 'application',
+  'tag': 'activity',
+  'key': 'ru.ok.android.sdk.OkPostingActivity',
+  'xml': '<activity android:name="ru.ok.android.sdk.OkPostingActivity"/>'
+})
+
+sdkbox.android_add_xml_item({
+  'path': 'application',
+  'tag': 'activity',
+  'key': 'ru.ok.android.sdk.OkAppSuggestActivity',
+  'xml': '<activity android:name="ru.ok.android.sdk.OkAppSuggestActivity"/>'
+})
+
+sdkbox.android_add_xml_item({
+  'path': 'application',
+  'tag': 'activity',
+  'key': 'ru.ok.android.sdk.OkAppInviteActivity',
+  'xml': '<activity android:name="ru.ok.android.sdk.OkAppInviteActivity"/>'
+})
+
+sdkbar.appDelegateInject({
+    'ios': {
+         'include': 'OkSdk.h',
+         'function': 'register_all_oksdk_framework'
+    },
+    'marker': SDKBOX_PACKAGE_NAME,
+    'android': {
+         'include': 'OkSdk.hpp',
+         'function': 'register_all_oksdk_framework'
+    }
+})
+
+sdkbar.gradleProject('odnoklassniki-android-sdk', './odnoklassniki-android-sdk')
+sdkbar.androidJni(['../../../Classes/OkSdk.cpp'])
+
+sdkbar.add_xml_item(ANDROID_STUDIO_PROJECT_DIR+'/app/res/values/strings.xml', {
+  'path': '.',
+  'tag': 'string',
+  'key': 'ok_app_id',
+  'xml': '<string name="ok_app_id">200522240</string>'
+})
+
+sdkbar.add_xml_item(ANDROID_STUDIO_PROJECT_DIR+'/app/res/values/strings.xml', {
+  'path': '.',
+  'tag': 'string',
+  'key': 'ok_api_key',
+  'xml': '<string name="ok_api_key">CBALLEPMABABABABA</string>'
+})
+
+
