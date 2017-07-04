@@ -1,3 +1,5 @@
+APP_ID = variable('APP_ID')     # 200522240
+APP_KEY = variable('APP_KEY')   # CBALLEPMABABABABA
 
 sdkbox.copy_files(['app', 'odnoklassniki-android-sdk'], PLUGIN_PATH, ANDROID_STUDIO_PROJECT_DIR)
 
@@ -12,7 +14,7 @@ sdkbox.android_add_xml_item({
     <action android:name="android.intent.action.VIEW" />
     <category android:name="android.intent.category.DEFAULT" />
     <category android:name="android.intent.category.BROWSABLE" />
-    <data android:host="ok200522240" android:scheme="okauth" />
+    <data android:host="'''+APP_ID+'''" android:scheme="okauth" />
   </intent-filter>
 </activity>'''
 })
@@ -57,14 +59,14 @@ sdkbar.add_xml_item(ANDROID_STUDIO_PROJECT_DIR+'/app/res/values/strings.xml', {
   'path': '.',
   'tag': 'string',
   'key': 'ok_app_id',
-  'xml': '<string name="ok_app_id">200522240</string>'
+  'xml': '<string name="ok_app_id">'+APP_ID+'</string>'
 })
 
 sdkbar.add_xml_item(ANDROID_STUDIO_PROJECT_DIR+'/app/res/values/strings.xml', {
   'path': '.',
   'tag': 'string',
   'key': 'ok_api_key',
-  'xml': '<string name="ok_api_key">CBALLEPMABABABABA</string>'
+  'xml': '<string name="ok_api_key">'+APP_KEY+'</string>'
 })
 
 
