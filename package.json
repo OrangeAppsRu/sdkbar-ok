@@ -1,6 +1,6 @@
 {
     "name": "sdkbar-ok",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "description": "OK SDK plugin for cocos2d-x",
     "repository": {
         "type": "git",
