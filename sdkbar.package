@@ -2,8 +2,15 @@ APP_ID = variable('APP_ID')     # 200522240
 APP_KEY = variable('APP_KEY')   # CBALLEPMABABABABA
 
 sdkbox.copy_files(['app', 'odnoklassniki-android-sdk'], PLUGIN_PATH, ANDROID_STUDIO_PROJECT_DIR)
-
+sdkbox.copy_files(['ios'], PLUGIN_PATH, IOS_PROJECT_DIR)
 sdkbox.copy_files(['Classes/OkSdk.cpp', 'Classes/OkSdk.h', 'Classes/OkSdk.hpp', 'Classes/OkSdk.mm'], PLUGIN_PATH, COCOS_CLASSES_DIR)
+
+# Classes/OkSdk.h
+# Classes/OkSdk.mm
+# ios/OKSDK.h
+# ios/OKSDK.m
+
+sdkbox.xcode_add_sources(['OkSdk.mm', '../proj.ios_mac/ios/OKSDK.m'])
 
 sdkbox.android_add_xml_item({
   'path': 'application',
