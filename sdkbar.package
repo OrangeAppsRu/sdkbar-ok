@@ -60,7 +60,7 @@ sdkbar.appDelegateInject({
 })
 
 sdkbar.gradleProject('odnoklassniki-android-sdk', './odnoklassniki-android-sdk')
-sdkbar.androidJni(['../../../Classes/OkSdk.cpp'])
+sdkbox.android_add_sources(['../../Classes/OkSdk.cpp'])
 
 sdkbar.add_xml_item(ANDROID_STUDIO_PROJECT_DIR+'/app/res/values/strings.xml', {
   'path': '.',
