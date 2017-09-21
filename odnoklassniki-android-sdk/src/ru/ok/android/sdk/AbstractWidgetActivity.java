@@ -29,6 +29,7 @@ public abstract class AbstractWidgetActivity extends Activity {
     protected String mAccessToken;
     protected String mSessionSecretKey;
     protected final HashMap<String, String> args = new HashMap<>();
+    protected boolean retryAllowed = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +47,9 @@ public abstract class AbstractWidgetActivity extends Activity {
                     args.putAll(map);
                 }
             }
+            if (bundle.containsKey(Shared.PARAM_WIDGET_RETRY_ALLOWED)) {
+                retryAllowed = bundle.getBoolean(Shared.PARAM_WIDGET_RETRY_ALLOWED, true);
+            }
         }
     }
 
@@ -56,7 +60,8 @@ public abstract class AbstractWidgetActivity extends Activity {
     protected abstract void processError(String error);
 
     protected final String getBaseUrl() {
-        return Shared.REMOTE_WIDGETS + "dk?st.cmd=" + getWidgetId() +
+        return Odnoklassniki.getInstance().getConnectBaseUrl() +
+                "dk?st.cmd=" + getWidgetId() +
                 "&st.access_token=" + mAccessToken +
                 "&st.app=" + mAppId +
                 "&st.return=" + getReturnUrl();

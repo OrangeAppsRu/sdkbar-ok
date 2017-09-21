@@ -1,6 +1,6 @@
 {
     "name": "sdkbar-ok",
-    "version": "0.0.3",
+    "version": "0.0.4",
     "description": "OK SDK plugin for cocos2d-x",
     "sdk-dependence": {
         "sdkbar-utils": "^0.0.1"

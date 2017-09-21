@@ -4,11 +4,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public interface Shared {
-    String REMOTE_PORTAL = "https://ok.ru/";
-    String REMOTE_API = "http://api.ok.ru/";
+    String REMOTE_API = "https://api.ok.ru/";
     String REMOTE_WIDGETS = "https://connect.ok.ru/";
-
-    String OAUTH_GET_TOKEN_URL = REMOTE_PORTAL + "oauth/authorize?client_id=%s&response_type=token&redirect_uri=%s&layout=m&platform=%s";
 
     // Params
     String PARAM_ACCESS_TOKEN = "access_token";
@@ -32,6 +29,7 @@ public interface Shared {
     String PARAM_CODE = "code";
     String PARAM_USER_TEXT_ENABLE = "utext";
     String PARAM_WIDGET_ARGS = "widget_args";
+    String PARAM_WIDGET_RETRY_ALLOWED = "widget_retry_allowed";
     String PARAM_PLATFORM = "platform";
     String PARAM_LOGGED_IN_USER = "logged_in_user";
     String PARAM_RESULT = "result";
@@ -41,11 +39,9 @@ public interface Shared {
     // android-specific params
     String PARAM_ACTIVITY_RESULT = "activity_result";
 
-    // Api
-    String API_URL = REMOTE_API + "fb.do";
-
     String APP_PLATFORM = "ANDROID";
     String PREFERENCES_FILE = "oksdkprefs";
+    String ENCODING = "UTF-8";
 
     /**
      * viral widget arguments that need to be signed

@@ -1,7 +1,5 @@
 package ru.ok.android.sdk;
 
-import java.net.URLEncoder;
-
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ActivityNotFoundException;
@@ -15,11 +13,15 @@ import android.content.pm.ResolveInfo;
 import android.content.pm.Signature;
 import android.net.Uri;
 import android.net.http.SslError;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebView;
+
+import java.net.URLEncoder;
+
 import ru.ok.android.sdk.util.OkAuthType;
 
 public class OkAuthActivity extends Activity {
@@ -41,6 +43,8 @@ public class OkAuthActivity extends Activity {
 
     private WebView mWebView;
 
+    private boolean killable;
+
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -61,6 +65,28 @@ public class OkAuthActivity extends Activity {
 
         if (!ssoAuthorizationStarted) {
             auth();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        killable = false;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.HONEYCOMB) {
+            killable = true;
+        }
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB) {
+            killable = true;
         }
     }
 
@@ -113,7 +139,9 @@ public class OkAuthActivity extends Activity {
 
     @SuppressWarnings("deprecation")
     private String buildOAuthUrl() {
-        String url = String.format(Shared.OAUTH_GET_TOKEN_URL, mAppId, mRedirectUri, Shared.APP_PLATFORM);
+        String url = String.format(Odnoklassniki.getInstance().getConnectBaseUrl() +
+                "oauth/authorize?client_id=%s&response_type=token&redirect_uri=%s&layout=m&platform=%s",
+                mAppId, mRedirectUri, Shared.APP_PLATFORM);
         if ((mScopes != null) && (mScopes.length > 0)) {
             final String scopesString = URLEncoder.encode(TextUtils.join(";", mScopes));
             url = url + "&scope=" + scopesString;
@@ -221,6 +249,10 @@ public class OkAuthActivity extends Activity {
     }
 
     private void showAlert(final String message) {
+        if (killable || isFinishing()) {
+            return;
+        }
+
         AlertDialog.Builder builder = new AlertDialog.Builder(OkAuthActivity.this);
         builder.setMessage(message);
         builder.setPositiveButton(getString(R.string.retry), new DialogInterface.OnClickListener() {
