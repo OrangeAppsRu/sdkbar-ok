@@ -19,9 +19,10 @@ static void cpp_loginResult(int callbackId, std::string tokenStr);
 static void cpp_requestResult(int callbackId, std::string errStr, std::string resultStr);
 
 static void printLog(const char* str) {
-    //CCLOG("%s", str);
+    CCLOG("%s", str);
     cocos2d::log("%s", str);
 
+    /*
     cocos2d::JniMethodInfo methodInfo;
 
     if (! cocos2d::JniHelper::getStaticMethodInfo(methodInfo, "org/cocos2dx/javascript/AppActivity", "printLog", "(Ljava/lang/String;)V")) {
@@ -31,6 +32,7 @@ static void printLog(const char* str) {
     methodInfo.env->CallStaticVoidMethod(methodInfo.classID, methodInfo.methodID, s);
     methodInfo.env->DeleteLocalRef(s);
     methodInfo.env->DeleteLocalRef(methodInfo.classID);
+    */
 }
 
 static bool invokeMethod(const char* method) {
