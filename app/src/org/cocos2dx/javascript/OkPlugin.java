@@ -37,6 +37,7 @@ import ru.ok.android.sdk.util.OkScope;
 import ru.ok.android.sdk.util.OkDevice;
 import ru.ok.android.sdk.util.OkAuthType;
 import org.cocos2dx.lib.Cocos2dxHelper;
+import ru.ok.android.sdk.OkAuthListener;
 import android.preference.PreferenceManager.OnActivityResultListener;
 
 public class OkPlugin {
@@ -86,7 +87,7 @@ public class OkPlugin {
                     final String uid = json.optString("logged_in_user");
                     final String sessionSecretKey = json.optString("session_secret_key");
                     Log.i(TAG, "Odnoklassniki accessToken = " + token);
-                    callLoginResult(callbackId, token);
+					callLoginResult(callbackId, true, token);
                 }
                 @Override
                 public void onError(String error) {
@@ -124,23 +125,83 @@ public class OkPlugin {
                 public void onSuccess(JSONObject json) {
                     final String token = json.optString("access_token");
                     Log.i(TAG, "Odnoklassniki accessToken = " + token);
-                    callLoginResult(callbackId, token);
+					callLoginResult(callbackId, true, token);
                 }
                 @Override
                 public void onError(String error) {
 					Log.e(TAG, "Token invalid. " + error);
 					odnoklassnikiObject.clearTokens();
-                    callLoginResult(callbackId, null);
+					callLoginResult(callbackId, false, error);
                 }
             });
         return true;
-    }
+	}
 
+	private static void onActivityResult(int requestCode, int resultCode, Intent data) {
+		Log.i(TAG, "onActivityResult:" + requestCode + "," + resultCode + "," + data);
+		if (Odnoklassniki.getInstance().isActivityRequestOAuth(requestCode)) {
+			Odnoklassniki.getInstance().onAuthActivityResult(requestCode, resultCode, data, getAuthListener());
+		} else if (Odnoklassniki.getInstance().isActivityRequestViral(requestCode)) {
+			Odnoklassniki.getInstance().onActivityResultResult(requestCode, resultCode, data, getRequestListener());
+		}
+	}
+
+	private static OkAuthListener getAuthListener() {
+		return new OkAuthListener() {
+			@Override
+			public void onSuccess(final JSONObject json) {
+				//try {
+					final String token = json.optString("access_token");
+					Log.i(TAG, "Odnoklassniki accessToken = " + token);
+					callLoginResult(loginCallbackId, true, token);
+				/*} catch (JSONException e) {
+					Log.i(TAG, e.toString());
+					e.printStackTrace();
+					callLoginResult(loginCallbackId, false, json.toString());
+				}*/
+			}
+
+			@Override
+			public void onError(String error) {
+				callLoginResult(loginCallbackId, false, error);
+			}
+
+			@Override
+			public void onCancel(String error) {
+				callLoginResult(loginCallbackId, false, error);
+			}
+		};
+	}
+	private static OkListener getRequestListener() {
+		return new OkListener() {
+			@Override
+			public void onSuccess(final JSONObject json) {
+				Log.i(TAG, "Operation completed: " + json.toString());
+				callRequestResult(viralCallbackId, null, json.toString());
+				//Toast.makeText(MainActivity.this, json.toString(), Toast.LENGTH_LONG).show();
+			}
+
+			@Override
+			public void onError(String error) {
+				Log.e(TAG, "Posting error:" + error);
+				callRequestResult(viralCallbackId, error, null);
+				//Toast.makeText(MainActivity.this, String.format("%s: %s", getString(R.string.error), error), Toast.LENGTH_LONG).show();
+			}
+		};
+	}
+	/*
     public static void onActivityResult(int requestCode, int resultCode, Intent data)
     {
         if(resultCode == Activity.RESULT_CANCELED && data == null) {
             // switch to another activity result callback
             Log.i(TAG, "onActivityResult cancelled:" + requestCode + "," + resultCode + "," + data);
+			if (loginCallbackId > 0) {
+				callLoginResult(loginCallbackId, null);
+				loginCallbackId = 0;
+			} else if (viralCallbackId > 0) {
+				callRequestResult(viralCallbackId, "cancelled", null);
+				viralCallbackId = 0;
+			}
             return;
         }
         Log.i(TAG, "onActivityResult:" + requestCode + "," + resultCode + "," + data);
@@ -152,12 +213,14 @@ public class OkPlugin {
                         final String uid = json.optString("logged_in_user");
                         final String sessionSecretKey = json.optString("session_secret_key");
                         Log.i(TAG, "Odnoklassniki accessToken = " + token);
-                        callLoginResult(loginCallbackId, token);
+						callLoginResult(loginCallbackId, token);
+						loginCallbackId = 0;
                     }
                     @Override
                     public void onError(String error) {
                         Log.e(TAG, "OK login error: "+error);
-                        callLoginResult(loginCallbackId, null);
+						callLoginResult(loginCallbackId, null);
+						loginCallbackId = 0;
                     }
                 });
         } else if (data != null && odnoklassnikiObject.isActivityRequestViral(requestCode)) {
@@ -165,17 +228,19 @@ public class OkPlugin {
                     @Override
                     public void onSuccess(final JSONObject json) {
                         Log.i(TAG, "Operation completed: "+json.toString());
-                        callRequestResult(viralCallbackId, null, json.toString());
+						callRequestResult(viralCallbackId, null, json.toString());
+						viralCallbackId = 0;
                     }
                     @Override
                     public void onError(String error) {
                         Log.e(TAG, "Posting error:"+error);
-                        callRequestResult(viralCallbackId, error, null);
+						callRequestResult(viralCallbackId, error, null);
+						viralCallbackId = 0;
                     }
                 });
         }
     }
-  
+  */
     static public boolean usersGetInfo(final String uids, final String fields, int callbackId) {
         init();
         Map<String, String> params = new HashMap<String, String>();
@@ -389,12 +454,12 @@ public class OkPlugin {
         }.execute();
     }
 
-    static private void callLoginResult(final int callbackId, final String token) {
+	static private void callLoginResult(final int callbackId, final boolean success, final String result) {
         appActivity.runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "OK login result: "+token);
-                    loginResult(callbackId, token);
+					Log.i(TAG, "callLoginResult " + (success ? "success" : "error") + " result: " + result);
+					loginResult(callbackId, success, result);
                 }
             });
     }
@@ -409,7 +474,7 @@ public class OkPlugin {
             });
     }
 
-    public static native void loginResult(int callbackId, String token);
+	public static native void loginResult(int callbackId, boolean success, String result);
     public static native void requestResult(int callbackId, String err, String result);
 
 }
