@@ -10,7 +10,7 @@ sdkbox.copy_files(['Classes/OkSdk.cpp', 'Classes/OkSdk.h', 'Classes/OkSdk.hpp', 
 # ios/OKSDK.h
 # ios/OKSDK.m
 
-sdkbox.xcode_add_sources(['OkSdk.mm', '../proj.ios_mac/ios/OKSDK.m'])
+sdkbox.xcode_add_sources_with_opts(['OkSdk.mm', '../proj.ios_mac/ios/OKSDK.m'], {'compilerFlags': '-fobjc-arc'})
 
 sdkbox.android_add_xml_item({
   'path': 'application',
