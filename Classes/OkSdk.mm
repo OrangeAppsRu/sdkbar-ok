@@ -293,9 +293,9 @@ static bool jsb_oksdk_login(JSContext *cx, uint32_t argc, jsval *vp)
             [call callWithResult:@[[OKSDK currentAccessToken], [OKSDK currentAccessTokenSecretKey]] error:nil];
         } else {
             [OKSDK authorizeWithPermissions:permissions success:^(id data) {
-                [call callWithResult:data error:nil];
+                [call callWithStatus:YES result:data];
             } error:^(NSError *error) {
-                [call callWithResult:nil error:error];
+                [call callWithStatus:NO result:error];
             }];
         }
     } else {
