@@ -164,7 +164,7 @@ static bool invokeMethod(const char* method, const char* param1, const char* par
 	return true;
 }
 
-/*static bool jsb_oksdk_init(JSContext *cx, uint32_t argc, jsval *vp)
+static bool jsb_oksdk_init(JSContext *cx, uint32_t argc, jsval *vp)
 {
 	printLog("jsb_oksdk_init");
 	JSAutoRequest rq(cx);
@@ -183,17 +183,17 @@ static bool invokeMethod(const char* method, const char* param1, const char* par
 		JS::RootedValue arg1Val(cx, args.get(1));
 		ok &= jsval_to_std_string(cx, arg1Val, &arg1);
 		CCLOG("arg1: %s\n", arg1.c_str());
-		if(invokeMethod("init", arg0.c_str(), arg1.c_str())) {
+		//if(invokeMethod("init", arg0.c_str(), arg1.c_str())) {
 			rec.rval().set(JSVAL_TRUE);
-		} else {
-			rec.rval().set(JSVAL_FALSE);
-		}
+        //} else {
+        //	rec.rval().set(JSVAL_FALSE);
+        //}
 		return true;
 	} else {
 		JS_ReportError(cx, "Invalid number of arguments");
 		return false;
 	}
-}*/
+}
 
 static bool jsb_oksdk_login(JSContext *cx, uint32_t argc, jsval *vp) {
 	printLog("jsb_oksdk_login");
@@ -605,7 +605,7 @@ void register_all_oksdk_framework(JSContext* cx, JS::HandleObject obj) {
 	JS::RootedObject ns(cx);
 	get_or_create_js_obj(cx, obj, "oksdk", &ns);
 
-	// JS_DefineFunction(cx, ns, "init", jsb_oksdk_init, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+	JS_DefineFunction(cx, ns, "init", jsb_oksdk_init, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 	JS_DefineFunction(cx, ns, "login", jsb_oksdk_login, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 	JS_DefineFunction(cx, ns, "logout", jsb_oksdk_logout, 0, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 	JS_DefineFunction(cx, ns, "loggedin", jsb_oksdk_loggedin, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
