@@ -213,6 +213,20 @@ static jsval object_to_jsval(JSContext *cx, id object)
     [calls removeObject:self];
 }
 
+-(void)callWithStatus:(BOOL)status result:(id)result
+{
+    JSAutoCompartment ac(context, contextObject.ref());
+    JS::RootedValue retVal(context);
+    JS::AutoValueVector valArr(context);
+    NSLog(@"OK Status: %d result: %@", status, result);
+    valArr.append(BOOLEAN_TO_JSVAL(status));
+    valArr.append(object_to_jsval(context, result));
+    JS::HandleValueArray funcArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
+    JS::RootedObject thisObj(context, thisObject.ref().get().toObjectOrNull());
+    JS_CallFunctionValue(context, thisObj, callback.ref(), funcArgs, &retVal);
+    [calls removeObject:self];
+}
+
 @end
 
 static bool jsb_oksdk_init(JSContext *cx, uint32_t argc, jsval *vp)
@@ -314,9 +328,9 @@ static bool jsb_oksdk_loggedin(JSContext *cx, uint32_t argc, jsval *vp)
         call->contextObject.construct(cx, obj);
         
         if([OKSDK currentAccessToken] && [OKSDK currentAccessTokenSecretKey]) {
-            [call callWithResult:@[[OKSDK currentAccessToken], [OKSDK currentAccessTokenSecretKey]] error:nil];
+            [call callWithStatus:YES result:[OKSDK currentAccessToken]];
         } else {
-            [call callWithResult:nil error:[NSError errorWithDomain:NSNetServicesErrorDomain code:403 userInfo:@{}]];
+            [call callWithStatus:NO result:[NSError errorWithDomain:NSNetServicesErrorDomain code:403 userInfo:@{}]];
         }
         return true;
     } else {

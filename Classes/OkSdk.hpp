@@ -16,9 +16,8 @@
 
 void register_all_oksdk_framework(JSContext* cx, JS::HandleObject obj);
 
-extern "C"
-{
-    void Java_org_cocos2dx_javascript_OkPlugin_loginResult(JNIEnv* env, jobject thiz, jint callbackId, jstring token);
+extern "C" {
+	void Java_org_cocos2dx_javascript_OkPlugin_loginResult(JNIEnv* env, jobject thiz, jint callbackId, jboolean success, jstring result);
 
 	void Java_org_cocos2dx_javascript_OkPlugin_requestResult(JNIEnv* env, jobject thiz, jint callbackId, jstring err, jstring result);
 };
