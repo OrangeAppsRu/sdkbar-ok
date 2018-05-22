@@ -97,8 +97,10 @@ public class OkPlugin {
                     //вызываем запрос авторизации. После OAuth будет вызван callback, определенный для объекта
                     OkAuthType authType = OkAuthType.ANY;
                     if(permissions.length <= 0) {
-                        String[] perm = new String[1];
+                        String[] perm = new String[3];
                         perm[0] = OkScope.VALUABLE_ACCESS;
+                        perm[1] = OkScope.LONG_ACCESS_TOKEN;
+                        perm[3] = OkScope.APP_INVITE;
                         odnoklassnikiObject.requestAuthorization(appActivity, REDIRECT_URL, authType, perm);
                     } else {
                         odnoklassnikiObject.requestAuthorization(appActivity, REDIRECT_URL, authType, permissions);
@@ -168,7 +170,7 @@ public class OkPlugin {
 
 			@Override
 			public void onCancel(String error) {
-				callLoginResult(loginCallbackId, false, error);
+				callLoginResult(loginCallbackId, true, "");
 			}
 		};
 	}
