@@ -1,5 +1,5 @@
-APP_ID = variable('APP_ID')     # 200522240
-APP_KEY = variable('APP_KEY')   # CBALLEPMABABABABA
+APP_ID = variable('APP_ID')
+APP_KEY = variable('APP_KEY')
 
 sdkbox.copy_files(['app', 'odnoklassniki-android-sdk'], PLUGIN_PATH, ANDROID_STUDIO_PROJECT_DIR)
 sdkbox.copy_files(['ios'], PLUGIN_PATH, IOS_PROJECT_DIR)
