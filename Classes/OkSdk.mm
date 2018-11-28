@@ -137,6 +137,35 @@ static jsval object_to_jsval(JSContext *cx, id object)
     }
 }
 
+static void callback(int callbackId, id result, NSString* errorStr)
+{
+    dispatch_async(dispatch_get_main_queue(), ^{
+        CallbackFrame *cb = CallbackFrame::getById(callbackId);
+        if(!cb) {
+            printLog("requestResult: callbackId not found!");
+            return;
+        }
+
+        JSAutoRequest rq(cb->cx);
+        JSAutoCompartment ac(cb->cx, cb->_ctxObject.ref());
+
+        JS::AutoValueVector valArr(cb->cx);
+        if(errorStr != nil && errorStr.length > 0) {
+            valArr.append(string_to_jsval(cb->cx, errorStr));
+            valArr.append(JSVAL_NULL);
+        } else {
+            valArr.append(JSVAL_NULL);
+            jsval js_result = object_to_jsval(cb->cx, result);
+            valArr.append(js_result);
+        };
+
+        JS::HandleValueArray funcArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
+        cb->call(funcArgs);
+        printLog("requestResult finished");
+        delete cb;
+    });
+}
+
 /******************** OKCall ********************/
 
 @interface OKCall: NSObject {
@@ -477,14 +506,62 @@ static bool jsb_oksdk_is_ok_app_installed(JSContext *cx, uint32_t argc, jsval *v
 
 static bool jsb_oksdk_perform_posting(JSContext *cx, uint32_t argc, jsval *vp)
 {
-    // TODO
-    return false;
+    printLog("jsb_oksdk_perform_posting");
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    JS::CallReceiver rec = JS::CallReceiverFromVp(vp);
+    bool ok = true;
+    if (argc == 3) {
+        // attachment, callback, this
+        CallbackFrame *cb = new CallbackFrame(cx, obj, args.get(2), args.get(1));
+        std::string arg0;
+        JS::RootedValue arg0Val(cx, args.get(0));
+        ok &= jsval_to_std_string(cx, arg0Val, &arg0);
+        NSString *attachment = [NSString stringWithUTF8String:arg0.c_str()];
+        
+        [OKSDK showWidget:@"WidgetMediatopicPost" arguments:@{@"st.attachment":attachment} options:@{@"st.utext":@"on"} 
+            success:^(NSDictionary *data) {
+                callback(cb->callbackId, data, nil);
+            } 
+            error:^(NSError *error) {
+                callback(cb->callbackId, nil, error.description);
+            }
+         ];
+        rec.rval().set(JSVAL_TRUE);
+        return true;
+    } else {
+        JS_ReportError(cx, "Invalid number of arguments");
+        return false;
+    }
 }
 
 static bool jsb_oksdk_perform_suggest(JSContext *cx, uint32_t argc, jsval *vp)
 {
-    // TODO
-    return false;
+    printLog("jsb_oksdk_perform_suggest");
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    JS::CallReceiver rec = JS::CallReceiverFromVp(vp);
+    bool ok = true;
+    if (argc == 3) {
+        // params, callback, this
+        CallbackFrame *cb = new CallbackFrame(cx, obj, args.get(2), args.get(1));
+        JS::RootedValue arg0Val(cx, args.get(0));
+        NSDictionary *methodParams = jsval_to_dictionary(cx, arg0Val);
+
+        [OKSDK showWidget:@"WidgetSuggest" arguments:methodParams options:@{} 
+            success:^(NSDictionary *data) {
+                callback(cb->callbackId, data, nil);
+            } 
+            error:^(NSError *error) {
+                callback(cb->callbackId, nil, error.description);
+            }
+         ];
+        rec.rval().set(JSVAL_TRUE);
+        return true;
+    } else {
+        JS_ReportError(cx, "Invalid number of arguments");
+        return false;
+    }
 }
 
 static bool jsb_oksdk_report_stats(JSContext *cx, uint32_t argc, jsval *vp)
@@ -495,8 +572,31 @@ static bool jsb_oksdk_report_stats(JSContext *cx, uint32_t argc, jsval *vp)
 
 static bool jsb_oksdk_perform_invite(JSContext *cx, uint32_t argc, jsval *vp)
 {
-    // TODO
-    return false;
+    printLog("jsb_oksdk_perform_invite");
+    JS::CallArgs args = JS::CallArgsFromVp(argc, vp);
+    JS::RootedObject obj(cx, args.thisv().toObjectOrNull());
+    JS::CallReceiver rec = JS::CallReceiverFromVp(vp);
+    bool ok = true;
+    if (argc == 3) {
+        // params, callback, this
+        CallbackFrame *cb = new CallbackFrame(cx, obj, args.get(2), args.get(1));
+        JS::RootedValue arg0Val(cx, args.get(0));
+        NSDictionary *methodParams = jsval_to_dictionary(cx, arg0Val);
+
+        [OKSDK showWidget:@"WidgetInvite" arguments:methodParams options:@{} 
+            success:^(NSDictionary *data) {
+                callback(cb->callbackId, data, nil);
+            } 
+            error:^(NSError *error) {
+                callback(cb->callbackId, nil, error.description);
+            }
+         ];
+        rec.rval().set(JSVAL_TRUE);
+        return true;
+    } else {
+        JS_ReportError(cx, "Invalid number of arguments");
+        return false;
+    }
 }
 
 static bool jsb_oksdk_call_api(JSContext *cx, uint32_t argc, jsval *vp)
