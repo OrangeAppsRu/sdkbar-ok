@@ -195,36 +195,42 @@ static jsval object_to_jsval(JSContext *cx, id object)
 
 -(void)callWithResult:(id)result error:(NSError *)error
 {
-    JSAutoCompartment ac(context, contextObject.ref());
-    JS::RootedValue retVal(context);
-    JS::AutoValueVector valArr(context);
-    if(error) {
-        NSLog(@"OK Error: %@", error);
-        valArr.append(std_string_to_jsval(context, [error.description UTF8String]));
-        valArr.append( JSVAL_NULL);
-    } else {
-        NSLog(@"OK Result: %@", result);
-        valArr.append(JSVAL_NULL);
-        valArr.append(object_to_jsval(context, result));
-    }
-    JS::HandleValueArray funcArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-    JS::RootedObject thisObj(context, thisObject.ref().get().toObjectOrNull());
-    JS_CallFunctionValue(context, thisObj, callback.ref(), funcArgs, &retVal);
-    [calls removeObject:self];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        JSAutoRequest rq(context);
+        JSAutoCompartment ac(context, contextObject.ref());
+        JS::RootedValue retVal(context);
+        JS::AutoValueVector valArr(context);
+        if(error) {
+            NSLog(@"OK Error: %@", error);
+            valArr.append(std_string_to_jsval(context, [error.description UTF8String]));
+            valArr.append( JSVAL_NULL);
+        } else {
+            NSLog(@"OK Result: %@", result);
+            valArr.append(JSVAL_NULL);
+            valArr.append(object_to_jsval(context, result));
+        }
+        JS::HandleValueArray funcArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
+        JS::RootedObject thisObj(context, thisObject.ref().get().toObjectOrNull());
+        JS_CallFunctionValue(context, thisObj, callback.ref(), funcArgs, &retVal);
+        [calls removeObject:self];
+    });
 }
 
 -(void)callWithStatus:(BOOL)status result:(id)result
 {
-    JSAutoCompartment ac(context, contextObject.ref());
-    JS::RootedValue retVal(context);
-    JS::AutoValueVector valArr(context);
-    NSLog(@"OK Status: %d result: %@", status, result);
-    valArr.append(BOOLEAN_TO_JSVAL(status));
-    valArr.append(object_to_jsval(context, result));
-    JS::HandleValueArray funcArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
-    JS::RootedObject thisObj(context, thisObject.ref().get().toObjectOrNull());
-    JS_CallFunctionValue(context, thisObj, callback.ref(), funcArgs, &retVal);
-    [calls removeObject:self];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        JSAutoRequest rq(context);
+        JSAutoCompartment ac(context, contextObject.ref());
+        JS::RootedValue retVal(context);
+        JS::AutoValueVector valArr(context);
+        NSLog(@"OK Status: %d result: %@", status, result);
+        valArr.append(BOOLEAN_TO_JSVAL(status));
+        valArr.append(object_to_jsval(context, result));
+        JS::HandleValueArray funcArgs = JS::HandleValueArray::fromMarkedLocation(2, valArr.begin());
+        JS::RootedObject thisObj(context, thisObject.ref().get().toObjectOrNull());
+        JS_CallFunctionValue(context, thisObj, callback.ref(), funcArgs, &retVal);
+        [calls removeObject:self];
+    });
 }
 
 @end
