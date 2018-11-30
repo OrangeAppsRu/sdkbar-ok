@@ -9,9 +9,14 @@
 #import "./OkSdk.h"
 #import "../proj.ios_mac/ios/OKSDK.h"
 #include "scripting/js-bindings/manual/cocos2d_specifics.hpp"
+#include "utils/PluginUtils.h"
 #import <StoreKit/StoreKit.h>
 
 static NSMutableArray *calls = nil;
+
+static void printLog(const char* str) {
+    CCLOG("%s", str);
+}
 
 // FROM JS VAL
 
@@ -135,6 +140,15 @@ static jsval object_to_jsval(JSContext *cx, id object)
         NSLog(@"Error: unknown value class %@", object);
         return JSVAL_NULL;
     }
+}
+
+static NSDictionary* stringify_dictionary(NSDictionary* dict)
+{
+    NSMutableDictionary *result = [NSMutableDictionary new];
+    for(NSString *key in dict.allKeys) {
+        [result setValue:[NSString stringWithFormat:@"%@", dict[key]] forKey:key];
+    }
+    return result;
 }
 
 static void callback(int callbackId, id result, NSString* errorStr)
@@ -581,9 +595,9 @@ static bool jsb_oksdk_perform_invite(JSContext *cx, uint32_t argc, jsval *vp)
         // params, callback, this
         CallbackFrame *cb = new CallbackFrame(cx, obj, args.get(2), args.get(1));
         JS::RootedValue arg0Val(cx, args.get(0));
-        NSDictionary *methodParams = jsval_to_dictionary(cx, arg0Val);
+        NSDictionary *methodParams = stringify_dictionary(jsval_to_dictionary(cx, arg0Val));
 
-        [OKSDK showWidget:@"WidgetInvite" arguments:methodParams options:@{} 
+        [OKSDK showWidget:@"WidgetInvite" arguments:methodParams options:@{}
             success:^(NSDictionary *data) {
                 callback(cb->callbackId, data, nil);
             } 

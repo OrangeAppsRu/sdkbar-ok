@@ -124,6 +124,21 @@ typedef void (^OKCompletitionHander)(id data, NSError *error);
     return queryString;
 }
 
+- (NSString *)ok_queryStringWithWidgetSignature:(NSString *)secretKey sigName:(NSString *)sigName{
+    NSMutableString *sigSource = [NSMutableString string];
+    NSMutableString *queryString = [NSMutableString string];
+    NSArray *sortedKeys = [[self allKeys] sortedArrayUsingSelector: @selector(compare:)];
+    for (NSString *key in sortedKeys) {
+        NSString *value = self[key];
+        if([key isEqualToString:@"st.attachment"] || [key isEqualToString:@"st.return"] || [key isEqualToString:@"st.redirect_uri"] || [key isEqualToString:@"st.state"])
+            [sigSource appendString:[NSString stringWithFormat:@"%@=%@", key, value ]];
+        [queryString appendString:[NSString stringWithFormat:@"%@=%@&", key, [value ok_encode]]];
+    }
+    [sigSource appendString:secretKey];
+    [queryString appendString:[NSString stringWithFormat:@"%@=%@&", sigName, [sigSource ok_md5]]];
+    return queryString;
+}
+
 - (NSString *)ok_queryString {
     NSMutableString *queryString = [NSMutableString string];
     for (NSString *key in self) [queryString appendString:[NSString stringWithFormat:@"%@=%@&", [key ok_encode], [self[key] ok_encode]]];
@@ -330,7 +345,7 @@ typedef void (^OKCompletitionHander)(id data, NSError *error);
 
 - (void)showWidget:(NSString *)command arguments:(NSDictionary *)arguments options:(NSDictionary *)options success:(OKResultBlock)successBlock error:(OKErrorBlock)errorBlock {
     NSString *returnUri = [NSString stringWithFormat:@"ok%@://%@",self.settings.appId, command];
-    NSString *widgetUrl = [NSString stringWithFormat:@"%@%@&%@%@",OK_WIDGET_URL,[command ok_encode],[[arguments ok_union: @{@"st.redirect_uri":returnUri}]ok_queryStringWithSignature:self.accessTokenSecretKey sigName:@"st.signature"],[[options ok_union: @{@"st.access_token":self.accessToken,@"st.app":self.settings.appId,@"st.nocancel":@"on"}] ok_queryString]];
+    NSString *widgetUrl = [NSString stringWithFormat:@"%@%@&%@%@",OK_WIDGET_URL,[command ok_encode],[[arguments ok_union: @{@"st.redirect_uri":returnUri}]ok_queryStringWithWidgetSignature:self.accessTokenSecretKey sigName:@"st.signature"],[[options ok_union: @{@"st.access_token":self.accessToken,@"st.app":self.settings.appId,@"st.nocancel":@"on"}] ok_queryString]];
     self.completitionHandlers[returnUri] = ^(id data, NSError *error) {
         if(error) {
             errorBlock(error);
