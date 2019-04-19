@@ -621,7 +621,7 @@ void register_all_oksdk_framework(JSContext* cx, JS::HandleObject obj) {
     JS_DefineFunction(cx, ns, "report_stats", jsb_oksdk_report_stats, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, ns, "perform_invite", jsb_oksdk_perform_invite, 2, JSPROP_ENUMERATE | JSPROP_PERMANENT);
     JS_DefineFunction(cx, ns, "call_api", jsb_oksdk_call_api, 4, JSPROP_ENUMERATE | JSPROP_PERMANENT);
-    JS_DefineFunction(cx, ns, "get_api", jsb_oksdk_get_api, 3, JSPROP_ENUMERATE | JSPROP_PERMANENT);
+    JS_DefineFunction(cx, ns, "get_api", jsb_oksdk_get_api, 4, JSPROP_ENUMERATE | JSPROP_PERMANENT);
 }
 
 static void cpp_loginResult(int callbackId, bool success, std::string result) {
